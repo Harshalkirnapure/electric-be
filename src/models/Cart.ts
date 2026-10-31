@@ -1,0 +1,24 @@
+import mongoose, { Schema, type Model, type InferSchemaType } from 'mongoose';
+
+const cartItemSchema = new Schema(
+  {
+    product: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
+    quantity: { type: Number, required: true, min: 1 },
+    // Snapshot of price at the time it was added — the server re-prices on checkout.
+    unitPrice: { type: Number, required: true, min: 0 },
+  },
+  { _id: true },
+);
+
+const cartSchema = new Schema(
+  {
+    user: { type: Schema.Types.ObjectId, ref: 'User', required: true, unique: true, index: true },
+    items: { type: [cartItemSchema], default: [] },
+  },
+  { timestamps: true },
+);
+
+export type CartDocument = InferSchemaType<typeof cartSchema> & { _id: mongoose.Types.ObjectId };
+
+export const Cart: Model<CartDocument> = mongoose.model<CartDocument>('Cart', cartSchema);
+export default Cart;
